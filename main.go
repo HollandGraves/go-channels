@@ -6,6 +6,8 @@ import (
 )
 
 func main() {
+	c := make(chan string)
+
 	links := []string{
 		"http://google.com",
 		"http://facebook.com",
@@ -15,16 +17,20 @@ func main() {
 	}
 
 	for _, link := range links {
-		checkLink(link)
+		go checkLink(link, c)
 	}
 
+	fmt.Println(<-c)
 }
 
-func checkLink(link string) {
+func checkLink(link string, c chan string) {
 	_, err := http.Get(link)
 	if err != nil {
 		fmt.Println(link, "is down!")
+		c <- "Might be down I think!"
+		return
 	}
 
 	fmt.Println(link, "is up!")
+	c <- "Yep it's up!"
 }
