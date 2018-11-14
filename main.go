@@ -20,27 +20,19 @@ func main() {
 		go checkLink(link, c)
 	}
 
-	iterateLink(links, c)
+	for {
+		go checkLink(<-c, c)
+	}
 }
 
 func checkLink(link string, c chan string) {
 	_, err := http.Get(link)
 	if err != nil {
 		fmt.Println(link, "is down!")
-		c <- "Might be down I think!"
-
-		go checkLink(link, c)
+		c <- link
 		return
 	}
 
 	fmt.Println(link, "is up!")
-	c <- "Yep it's up!"
-	go checkLink(link, c)
-}
-
-func iterateLink(links []string, c chan string) {
-	for i := 0; i < len(links); i++ {
-		fmt.Println(<-c)
-		iterateLink(links, c)
-	}
+	c <- link
 }
